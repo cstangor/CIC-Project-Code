@@ -2,7 +2,8 @@
 # DEGREE ATTAINMENT (STEM/NONSTEM)
 
 #Set your working directory.  All data is read and written here:
-setwd("c:/users/n/onedrive/documents/research/CIC project/UMD LARA Data/R3")
+#setwd("c:/users/n/onedrive/documents/research/CIC project/UMD LARA Data/R3")
+setwd("X:/BAR/Projects/CIC/Learning Analytics/R3_UMD_RCode")
 
 #Put the following 3 files in the above directory
 #also be sure the file "STEM_CIP.csv" is there
@@ -12,25 +13,41 @@ source ("CIC_startup.R")
 source("degree_persistence_flowchart.R", local=FALSE)
 
 #Send the printout to a file if you want
-pdf('degree_persistence.pdf',width=7,height=11)
+pdf('degree_persistence.pdf')
 
 #Put your student record data file in the directory as well
 #Read the data from the appropriate file (.csv example here)
-sr = read.csv("d:/umd lara data/MD_SR.csv")
-#sr = read.csv("d:/umd lara data/student.record.sample.tab", sep = "\t")
+#sr = read.csv("d:/indiana_sr.csv")
+sr = read.csv("X:/BAR/Projects/CIC/Learning Analytics/R3_UMD_RCode/stu_rec_tbl.csv", header = T)
+
+
+#Make the vnames uppper_case
+names(sr)[names(sr) == 'major1_stem'] <- 'MAJOR1_STEM'
+sr$MAJOR1_STEM = as.character(sr$MAJOR1_STEM)
+
+names(sr)[names(sr) == 'first_declare_stem'] <- 'FIRST_DECLARE_STEM'
+sr$FIRST_DECLARE_STEM = as.character(sr$FIRST_DECLARE_STEM)
 
 #Subset on a term
 #Make this line choose only people prior to fall 2008
 sr_ = subset(sr, FIRST_TERM < "200808")
+table(sr_$MAJOR1_STEM)
+table(sr_$FIRST_DECLARE_STEM)
 
-sr_ = GetSTEM(sr_)
+sr_$MAJOR1_STEM[sr_$MAJOR1_STEM == 'Y'] <- TRUE
+sr_$MAJOR1_STEM[sr_$MAJOR1_STEM == 'N'] = FALSE
 
-sr_$FIRST_MAJOR = ifelse(sr_$MAJOR1_STEM == FALSE | sr_$MAJOR2_STEM == FALSE, "2NonStem", NA)
-sr_$FIRST_MAJOR = ifelse(sr_$MAJOR1_STEM == TRUE | sr_$MAJOR2_STEM == TRUE, "1Stem", sr_$FIRST_MAJOR)
+sr_$FIRST_DECLARE_STEM[sr_$FIRST_DECLARE_STEM == 'Y'] <- TRUE
+sr_$FIRST_DECLARE_STEM[sr_$FIRST_DECLARE_STEM == 'N'] = FALSE
+
+sr_$FIRST_MAJOR = ifelse(sr_$MAJOR1_STEM == FALSE , "2NonStem", NA)
+sr_$FIRST_MAJOR = ifelse(sr_$MAJOR1_STEM == TRUE , "1Stem", sr_$FIRST_MAJOR)
 sr_$FIRST_MAJOR [is.na(sr_$FIRST_MAJOR)] <- "3No Degree"
+#table(sr_$FIRST_MAJOR)
 
 sr_$FIRST_DECLARE_STEM[sr_$FIRST_DECLARE_STEM == FALSE] <- "2NonStem"
 sr_$FIRST_DECLARE_STEM[sr_$FIRST_DECLARE_STEM == TRUE] <- "1Stem"
+#table(sr_$FIRST_DECLARE_STEM)
 
 # Create flowchart ----
 
